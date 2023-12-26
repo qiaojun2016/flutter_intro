@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_intro/flutter_intro.dart';
 
 class SimpleUsage extends StatelessWidget {
-  const SimpleUsage({Key? key}) : super(key: key);
+  const SimpleUsage({super.key});
 
   @override
   Widget build(BuildContext context) {

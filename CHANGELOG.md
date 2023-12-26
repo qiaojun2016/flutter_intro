@@ -1,3 +1,7 @@
+## [3.0.4]
+
+* Updated demo sample code, use `PopScope` to replace the deprecated `WillPopScope`.
+
 ## [3.0.3]
 
 * Migrate to `3.13.0`.

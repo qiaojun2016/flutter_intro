@@ -1,6 +1,6 @@
 name: flutter_intro
 description: A better way for new feature introduction and step-by-step users guide for your Flutter project.
-version: 3.0.3
+version: 3.0.4
 homepage: https://github.com/minaxorg/flutter_intro
 
 environment:
@@ -20,7 +20,7 @@ dev_dependencies:
   # activated in the `analysis_options.yaml` file located at the root of your
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
-  flutter_lints: ^2.0.1
+  flutter_lints: ^3.0.1
 
 
 # For information on the generic Dart part of this file, see the

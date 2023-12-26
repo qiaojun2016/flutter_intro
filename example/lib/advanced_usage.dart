@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_intro/flutter_intro.dart';
 
 class AdvancedUsage extends StatefulWidget {
-  const AdvancedUsage({Key? key}) : super(key: key);
+  const AdvancedUsage({super.key});
 
   @override
   State<AdvancedUsage> createState() => _AdvancedUsageState();
@@ -10,18 +10,24 @@ class AdvancedUsage extends StatefulWidget {
 
 class _AdvancedUsageState extends State<AdvancedUsage> {
   bool rendered = false;
+  bool canPop = false;
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: () async {
-        Intro intro = Intro.of(context);
+    Intro intro = Intro.of(context);
+    bool isOpen = intro.status.isOpen;
 
-        if (intro.status.isOpen == true) {
+    return PopScope(
+      canPop: !isOpen || canPop,
+
+      /// If the user clicks the return button, the guide will end early
+      onPopInvoked: (didPop) {
+        if (!didPop && isOpen) {
           intro.dispose();
-          return false;
+          setState(() {
+            canPop = true;
+          });
         }
-        return true;
       },
       child: Scaffold(
         appBar: AppBar(),
@@ -69,6 +75,7 @@ class _AdvancedUsageState extends State<AdvancedUsage> {
                                   text: 'Prev',
                                   onPressed: params.onPrev,
                                 ),
+                                const SizedBox(width: 4),
                                 IntroButton(
                                   text: 'Next',
                                   onPressed: params.onNext,
@@ -124,10 +131,12 @@ class _AdvancedUsageState extends State<AdvancedUsage> {
                                         onPressed: params.onPrev,
                                         text: 'Prev',
                                       ),
+                                      const SizedBox(width: 4),
                                       IntroButton(
                                         onPressed: params.onNext,
                                         text: 'Next',
                                       ),
+                                      const SizedBox(width: 4),
                                       IntroButton(
                                         onPressed: params.onFinish,
                                         text: 'Finish',
@@ -167,6 +176,9 @@ class _AdvancedUsageState extends State<AdvancedUsage> {
             ),
             onPressed: () {
               Intro.of(context).start();
+
+              /// Make the component re-render and get the correct isOpen value
+              setState(() {});
             },
           ),
         ),

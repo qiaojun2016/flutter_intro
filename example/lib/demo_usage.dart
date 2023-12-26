@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_intro/flutter_intro.dart';
 
 class DemoUsage extends StatefulWidget {
-  const DemoUsage({Key? key}) : super(key: key);
+  const DemoUsage({super.key});
 
   @override
   State<DemoUsage> createState() => _DemoUsageState();
