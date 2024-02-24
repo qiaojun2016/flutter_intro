@@ -1,4 +1,4 @@
-part of flutter_intro;
+part of 'flutter_intro.dart';
 
 ///  Throttling
 ///  Have method [throttle]
@@ -12,11 +12,9 @@ class _Throttling {
   }
 
   void throttle(Function func) {
-    if (_timer == null) {
-      _timer = Timer(_duration, () {
-        Function.apply(func, []);
-        _timer = null;
-      });
-    }
+    _timer ??= Timer(_duration, () {
+      Function.apply(func, []);
+      _timer = null;
+    });
   }
 }

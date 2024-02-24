@@ -1,4 +1,4 @@
-part of flutter_intro;
+part of 'flutter_intro.dart';
 
 /// The data passed in when the system calls [IntroStep.widgetBuilder] when the guide page is generated
 ///

@@ -1,4 +1,4 @@
-part of flutter_intro;
+part of 'flutter_intro.dart';
 
 class IntroStepBuilder extends StatefulWidget {
   final Widget Function(
@@ -28,8 +28,8 @@ class IntroStepBuilder extends StatefulWidget {
   /// When widget loaded (means the key is add to context)
   final VoidCallback? onWidgetLoad;
 
-  IntroStepBuilder({
-    Key? key,
+  const IntroStepBuilder({
+    super.key,
     required this.order,
     required this.builder,
     this.text,
@@ -38,8 +38,7 @@ class IntroStepBuilder extends StatefulWidget {
     this.onHighlightWidgetTap,
     this.padding,
     this.onWidgetLoad,
-  })  : assert(text != null || overlayBuilder != null),
-        super(key: key);
+  }) : assert(text != null || overlayBuilder != null);
 
   GlobalKey get _key => GlobalObjectKey(order);
 
@@ -56,7 +55,7 @@ class _IntroStepBuilderState extends State<IntroStepBuilder> {
   @override
   void initState() {
     super.initState();
-    Future.delayed(Duration.zero, () {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       Intro flutterIntro = Intro.of(context);
       if (!flutterIntro._introStepBuilderList.contains(widget)) {
         flutterIntro._introStepBuilderList.add(widget);

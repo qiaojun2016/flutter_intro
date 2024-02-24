@@ -1,4 +1,4 @@
-part of flutter_intro;
+part of 'flutter_intro.dart';
 
 /// Delayed rendering class, used to achieve [Intro] animation effect
 /// For internal use of classes, developers don’t need to care
@@ -17,12 +17,11 @@ class _DelayRenderedWidget extends StatefulWidget {
   final bool removed;
 
   const _DelayRenderedWidget({
-    Key? key,
     this.removed = false,
     required this.duration,
     this.child,
     this.childPersist = false,
-  }) : super(key: key);
+  });
   @override
   _DelayRenderedWidgetState createState() => _DelayRenderedWidgetState();
 }
@@ -33,7 +32,7 @@ class _DelayRenderedWidgetState extends State<_DelayRenderedWidget> {
   late Timer timer;
 
   /// Time interval between animations
-  final Duration durationInterval = Duration(milliseconds: 100);
+  final Duration durationInterval = const Duration(milliseconds: 100);
   @override
   void initState() {
     super.initState();

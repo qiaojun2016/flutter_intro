@@ -1,13 +1,13 @@
-part of flutter_intro;
+part of 'flutter_intro.dart';
 
 class IntroButton extends StatelessWidget {
   final VoidCallback? onPressed;
   final String text;
   const IntroButton({
-    Key? key,
+    super.key,
     required this.text,
     this.onPressed,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -16,13 +16,13 @@ class IntroButton extends StatelessWidget {
       child: OutlinedButton(
         style: OutlinedButton.styleFrom(
           foregroundColor: Colors.white,
-          shape: StadiumBorder(),
+          shape: const StadiumBorder(),
           side: onPressed == null
               ? null
-              : BorderSide(
+              : const BorderSide(
                   color: Colors.white,
                 ),
-          padding: EdgeInsets.symmetric(
+          padding: const EdgeInsets.symmetric(
             vertical: 0,
             horizontal: 8,
           ),
@@ -30,7 +30,7 @@ class IntroButton extends StatelessWidget {
         onPressed: onPressed,
         child: Text(
           text,
-          style: TextStyle(
+          style: const TextStyle(
             fontSize: 12,
           ),
         ),

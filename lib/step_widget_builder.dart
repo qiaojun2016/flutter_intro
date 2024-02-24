@@ -1,4 +1,4 @@
-part of flutter_intro;
+part of 'flutter_intro.dart';
 
 /// The [WidgetBuilder] class that comes with Flutter Intro
 ///

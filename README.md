@@ -6,15 +6,19 @@ A better way for new feature introduction and step-by-step users guide for your 
 
 ## Since I no longer work at Tal, the repository has been moved from [https://github.com/tal-tech/flutter_intro](https://github.com/tal-tech/flutter_intro) to here.
 
-## This is `3.0.0` version, if you find `2.x` documentation, [click here](./README_V2.md).
+## This is `3.x` version, if you find `2.x` documentation, [click here](./README_V2.md).
 
 I completely rewritten the 3.0 version, and the usage is clearer and more concise.
 
-<img src='https://raw.githubusercontent.com/minaxorg/flutter_intro/master/doc/v3/example1.gif' width='300' />
+<img src='./doc/v3/example1.gif' width='300' />
 
 Automatically adapt when the device screen orientation is switched.
 
-<img src='https://raw.githubusercontent.com/minaxorg/flutter_intro/master/doc/example2.gif' width='300' />
+<img src='./doc/example2.gif' width='300' />
+
+Custom rendering and dynamic component rendering are also a breeze.
+
+<img src='./doc/v3/example2.gif' width='300' />
 
 ## Usage
 
@@ -75,7 +79,7 @@ IntroStepBuilder(
 )
 ```
 
-<img src='https://raw.githubusercontent.com/minaxorg/flutter_intro/master/doc/v3/img1.png' width='500' />
+<img src='./doc/v3/img1.png' width='500' />
 
 ### Run
 
@@ -96,7 +100,7 @@ IntroStepBuilder(
 )
 ```
 
-<img src='https://raw.githubusercontent.com/minaxorg/flutter_intro/master/doc/img2.png' width='300' />
+<img src='./doc/img2.png' width='300' />
 
 `StepWidgetParams` provides all the parameters needed to generate the guide overlay. 
 
@@ -104,11 +108,11 @@ IntroStepBuilder(
 
 Q1. What if the highlighted area is not displayed completely?
 
-<img src='https://raw.githubusercontent.com/minaxorg/flutter_intro/master/doc/img3.jpg' width='300' />
+<img src='./doc/img3.jpg' width='300' />
 
 A1. That's because Intro provides 8px padding by default.
 
-<img src='https://raw.githubusercontent.com/minaxorg/flutter_intro/master/doc/img4.jpg' width='300' />
+<img src='./doc/img4.jpg' width='300' />
 
 We can change it by setting the value of padding.
 
@@ -120,7 +124,7 @@ Intro(
   child: const YourApp(),
 );
 ```
-<img src='https://raw.githubusercontent.com/minaxorg/flutter_intro/master/doc/img5.jpg' width='300' />
+<img src='./doc/img5.jpg' width='300' />
 
 <hr />
 
@@ -155,7 +159,7 @@ IntroStepBuilder(
   builder: (context, key) => YourWidget(),
 )
 ```
-<img src='https://raw.githubusercontent.com/minaxorg/flutter_intro/master/doc/img6.jpg' width='300' />
+<img src='./doc/img6.jpg' width='300' />
 
 <hr />
 
@@ -174,6 +178,27 @@ WillPopScope(
       return false;
     }
     return true;
+  },
+)
+```
+
+Q5. `WillPopScope` is deprecated, is there any better solution?
+
+A5. In version 3.1.0, `ValueNotifier<IntroStatus> statusNotifier` is added. You can achieve the same effect through the following sample code.
+
+```dart
+ValueListenableBuilder(
+  valueListenable: intro.statusNotifier,
+  builder: (context, value, child) {
+    return PopScope(
+      canPop: !intro.status.isOpen,
+      onPopInvoked: (didPop) {
+        if (!didPop) {
+          intro.dispose();
+        }
+      },
+      child: Scaffold(...),
+    );
   },
 )
 ```

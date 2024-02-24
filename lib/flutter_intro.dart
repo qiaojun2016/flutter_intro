@@ -19,13 +19,13 @@ class Intro extends InheritedWidget {
   static BuildContext? _context;
   static OverlayEntry? _overlayEntry;
   static bool _removed = false;
-  static Size _screenSize = Size(0, 0);
-  static Widget _overlayWidget = SizedBox.shrink();
+  static Size _screenSize = const Size(0, 0);
+  static Widget _overlayWidget = const SizedBox.shrink();
   static IntroStepBuilder? _currentIntroStepBuilder;
-  static Size _widgetSize = Size(0, 0);
-  static Offset _widgetOffset = Offset(0, 0);
+  static Size _widgetSize = const Size(0, 0);
+  static Offset _widgetOffset = const Offset(0, 0);
 
-  final _th = _Throttling(duration: Duration(milliseconds: 500));
+  final _th = _Throttling(duration: const Duration(milliseconds: 500));
   final List<IntroStepBuilder> _introStepBuilderList = [];
   final List<IntroStepBuilder> _finishedIntroStepBuilderList = [];
   late final Duration _animationDuration;
@@ -45,34 +45,37 @@ class Intro extends InheritedWidget {
   /// Click on whether the mask is allowed to be closed.
   final bool maskClosable;
 
+  final ValueNotifier<IntroStatus> statusNotifier = ValueNotifier(
+    IntroStatus(isOpen: false),
+  );
+
   /// [order] order
   final String Function(
     int order,
   )? buttonTextBuilder;
 
-  Intro({
+  Intro({super.key, 
     this.padding = const EdgeInsets.all(8),
     this.borderRadius = const BorderRadius.all(Radius.circular(4)),
     this.maskColor = const Color.fromRGBO(0, 0, 0, .6),
     this.noAnimation = false,
     this.maskClosable = false,
     this.buttonTextBuilder,
-    required Widget child,
-  }) : super(child: child) {
+    required super.child,
+  }) {
     _animationDuration =
-        noAnimation ? Duration(milliseconds: 0) : Duration(milliseconds: 300);
+        noAnimation ? const Duration(milliseconds: 0) : const Duration(milliseconds: 300);
   }
 
-  IntroStatus get status => IntroStatus(isOpen: _overlayEntry != null);
+  IntroStatus get status => statusNotifier.value;
 
   bool get hasNextStep =>
       _currentIntroStepBuilder == null ||
       _introStepBuilderList.where(
-            (element) {
-              return element.order > _currentIntroStepBuilder!.order;
-            },
-          ).length >
-          0;
+        (element) {
+          return element.order > _currentIntroStepBuilder!.order;
+        },
+      ).isNotEmpty;
 
   bool get hasPrevStep =>
       _finishedIntroStepBuilderList
@@ -114,6 +117,11 @@ class Intro extends InheritedWidget {
     return null;
   }
 
+  void _setOverlay(OverlayEntry? overlayEntry) {
+    _overlayEntry = overlayEntry;
+    statusNotifier.value = IntroStatus(isOpen: overlayEntry != null);
+  }
+
   Widget _widgetBuilder({
     double? width,
     double? height,
@@ -133,6 +141,10 @@ class Intro extends InheritedWidget {
     );
     return AnimatedPositioned(
       duration: _animationDuration,
+      left: left,
+      top: top,
+      bottom: bottom,
+      right: right,
       child: GestureDetector(
         onTap: onTap,
         child: AnimatedContainer(
@@ -140,14 +152,10 @@ class Intro extends InheritedWidget {
           decoration: decoration,
           width: width,
           height: height,
-          child: child,
           duration: _animationDuration,
+          child: child,
         ),
       ),
-      left: left,
-      top: top,
-      bottom: bottom,
-      right: right,
     );
   }
 
@@ -155,12 +163,12 @@ class Intro extends InheritedWidget {
     if (_overlayEntry == null) return;
 
     _removed = true;
-    _overlayEntry!.markNeedsBuild();
+    _overlayEntry?.markNeedsBuild();
     Timer(_animationDuration, () {
       if (_overlayEntry == null) return;
-      _overlayEntry!.remove();
+      _overlayEntry?.remove();
       _removed = false;
-      _overlayEntry = null;
+      _setOverlay(null);
       _introStepBuilderList.clear();
       _finishedIntroStepBuilderList.clear();
     });
@@ -224,6 +232,11 @@ class Intro extends InheritedWidget {
       _overlayWidget = Stack(
         children: [
           Positioned(
+            width: position.width,
+            left: position.left,
+            top: position.top,
+            bottom: position.bottom,
+            right: position.right,
             child: SizedBox(
               child: introStepBuilder.overlayBuilder!(
                 StepWidgetParams(
@@ -241,11 +254,6 @@ class Intro extends InheritedWidget {
                 ),
               ),
             ),
-            width: position.width,
-            left: position.left,
-            top: position.top,
-            bottom: position.bottom,
-            right: position.right,
           ),
         ],
       );
@@ -253,6 +261,10 @@ class Intro extends InheritedWidget {
       _overlayWidget = Stack(
         children: [
           Positioned(
+            left: position.left,
+            top: position.top,
+            bottom: position.bottom,
+            right: position.right,
             child: SizedBox(
               width: position.width,
               child: Column(
@@ -262,14 +274,14 @@ class Intro extends InheritedWidget {
                   Text(
                     introStepBuilder.text!,
                     softWrap: true,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.bold,
                       height: 1.4,
                       color: Colors.white,
                     ),
                   ),
-                  SizedBox(
+                  const SizedBox(
                     height: 12,
                   ),
                   IntroButton(
@@ -281,10 +293,6 @@ class Intro extends InheritedWidget {
                 ],
               ),
             ),
-            left: position.left,
-            top: position.top,
-            bottom: position.bottom,
-            right: position.right,
           ),
         ],
       );
@@ -293,12 +301,12 @@ class Intro extends InheritedWidget {
     if (_overlayEntry == null) {
       _createOverlay();
     } else {
-      _overlayEntry!.markNeedsBuild();
+      _overlayEntry?.markNeedsBuild();
     }
   }
 
   void _createOverlay() {
-    _overlayEntry = new OverlayEntry(
+    _setOverlay(OverlayEntry(
       builder: (BuildContext context) {
         Size currentScreenSize = MediaQuery.of(context).size;
 
@@ -338,9 +346,7 @@ class Intro extends InheritedWidget {
                             ? () {
                                 Future.delayed(
                                   const Duration(milliseconds: 200),
-                                  () {
-                                    _render();
-                                  },
+                                  _render,
                                 );
                               }
                             : null,
@@ -367,7 +373,7 @@ class Intro extends InheritedWidget {
           ),
         );
       },
-    );
+    ));
     Overlay.of(_context!).insert(_overlayEntry!);
   }
 
