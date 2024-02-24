@@ -10,15 +10,15 @@ A better way for new feature introduction and step-by-step users guide for your 
 
 I completely rewritten the 3.0 version, and the usage is clearer and more concise.
 
-<img src='./doc/v3/example1.gif' width='300' />
+<img src='https://raw.githubusercontent.com/minaxorg/flutter_intro/master/doc/v3/example1.gif' width='300' />
 
 Automatically adapt when the device screen orientation is switched.
 
-<img src='./doc/example2.gif' width='300' />
+<img src='https://raw.githubusercontent.com/minaxorg/flutter_intro/master/doc/example2.gif' width='300' />
 
 Custom rendering and dynamic component rendering are also a breeze.
 
-<img src='./doc/v3/example2.gif' width='300' />
+<img src='https://raw.githubusercontent.com/minaxorg/flutter_intro/master/doc/v3/example2.gif' width='300' />
 
 ## Usage
 
@@ -79,7 +79,7 @@ IntroStepBuilder(
 )
 ```
 
-<img src='./doc/v3/img1.png' width='500' />
+<img src='https://raw.githubusercontent.com/minaxorg/flutter_intro/master/doc/v3/img1.png' width='500' />
 
 ### Run
 
@@ -100,7 +100,7 @@ IntroStepBuilder(
 )
 ```
 
-<img src='./doc/img2.png' width='300' />
+<img src='https://raw.githubusercontent.com/minaxorg/flutter_intro/master/doc/img2.png' width='300' />
 
 `StepWidgetParams` provides all the parameters needed to generate the guide overlay. 
 
@@ -108,11 +108,11 @@ IntroStepBuilder(
 
 Q1. What if the highlighted area is not displayed completely?
 
-<img src='./doc/img3.jpg' width='300' />
+<img src='https://raw.githubusercontent.com/minaxorg/flutter_intro/master/doc/img3.jpg' width='300' />
 
 A1. That's because Intro provides 8px padding by default.
 
-<img src='./doc/img4.jpg' width='300' />
+<img src='https://raw.githubusercontent.com/minaxorg/flutter_intro/master/doc/img4.jpg' width='300' />
 
 We can change it by setting the value of padding.
 
@@ -124,7 +124,7 @@ Intro(
   child: const YourApp(),
 );
 ```
-<img src='./doc/img5.jpg' width='300' />
+<img src='https://raw.githubusercontent.com/minaxorg/flutter_intro/master/doc/img5.jpg' width='300' />
 
 <hr />
 
@@ -159,7 +159,7 @@ IntroStepBuilder(
   builder: (context, key) => YourWidget(),
 )
 ```
-<img src='./doc/img6.jpg' width='300' />
+<img src='https://raw.githubusercontent.com/minaxorg/flutter_intro/master/doc/img6.jpg' width='300' />
 
 <hr />
 

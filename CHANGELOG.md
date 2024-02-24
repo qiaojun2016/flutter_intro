@@ -1,3 +1,7 @@
+## [3.1.2]
+
+* Fix the issue where images in the readme are not displaying on pub.dev.
+
 ## [3.1.1]
 
 * Fix the score loss issue on [pub.dev](https://pub.dev/packages/flutter_intro/score).
