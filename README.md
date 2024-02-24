@@ -191,7 +191,7 @@ ValueListenableBuilder(
   valueListenable: intro.statusNotifier,
   builder: (context, value, child) {
     return PopScope(
-      canPop: !intro.status.isOpen,
+      canPop: !value.isOpen,
       onPopInvoked: (didPop) {
         if (!didPop) {
           intro.dispose();
