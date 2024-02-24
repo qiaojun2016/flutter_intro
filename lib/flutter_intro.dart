@@ -54,7 +54,8 @@ class Intro extends InheritedWidget {
     int order,
   )? buttonTextBuilder;
 
-  Intro({super.key, 
+  Intro({
+    super.key,
     this.padding = const EdgeInsets.all(8),
     this.borderRadius = const BorderRadius.all(Radius.circular(4)),
     this.maskColor = const Color.fromRGBO(0, 0, 0, .6),
@@ -63,8 +64,9 @@ class Intro extends InheritedWidget {
     this.buttonTextBuilder,
     required super.child,
   }) {
-    _animationDuration =
-        noAnimation ? const Duration(milliseconds: 0) : const Duration(milliseconds: 300);
+    _animationDuration = noAnimation
+        ? const Duration(milliseconds: 0)
+        : const Duration(milliseconds: 300);
   }
 
   IntroStatus get status => statusNotifier.value;

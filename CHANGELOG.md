@@ -1,3 +1,7 @@
+## [3.1.1]
+
+* Fix the score loss issue on [pub.dev](https://pub.dev/packages/flutter_intro/score).
+
 ## [3.1.0]
 
 * Adapted to Flutter 3.19.1.
