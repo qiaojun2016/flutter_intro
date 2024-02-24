@@ -1,3 +1,8 @@
+## [3.1.0]
+
+* Adapted to Flutter 3.19.1.
+* Introduce `ValueNotifier<IntroStatus> statusNotifier` to better adapt to `PopScope`.
+
 ## [3.0.4]
 
 * Updated demo sample code, use `PopScope` to replace the deprecated `WillPopScope`.
