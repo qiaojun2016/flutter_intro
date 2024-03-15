@@ -6,7 +6,10 @@ class IntroStepBuilder extends StatefulWidget {
     GlobalKey key,
   ) builder;
 
-  ///Set the running order, the smaller the number, the first
+  /// Set the group of this step, default is 'default'
+  final String group;
+
+  /// Establish a running sequence where lower values take precedence for execution.
   final int order;
 
   /// The method of generating the content of the guide page,
@@ -38,16 +41,17 @@ class IntroStepBuilder extends StatefulWidget {
     this.onHighlightWidgetTap,
     this.padding,
     this.onWidgetLoad,
+    this.group = 'default',
   }) : assert(text != null || overlayBuilder != null);
 
-  GlobalKey get _key => GlobalObjectKey(order);
+  GlobalKey get _key => GlobalStringKey('${group}_$order');
 
   @override
   State<IntroStepBuilder> createState() => _IntroStepBuilderState();
 
   @override
   String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return 'IntroStepBuilder(order: $order)';
+    return 'IntroStepBuilder(group: $group, order: $order)';
   }
 }
 
@@ -57,8 +61,12 @@ class _IntroStepBuilderState extends State<IntroStepBuilder> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Intro flutterIntro = Intro.of(context);
-      if (!flutterIntro._introStepBuilderList.contains(widget)) {
-        flutterIntro._introStepBuilderList.add(widget);
+      if (flutterIntro._introStepBuilderListMap[widget.group] == null) {
+        flutterIntro._introStepBuilderListMap[widget.group] = [];
+      }
+      if (!flutterIntro._introStepBuilderListMap[widget.group]!
+          .contains(widget)) {
+        flutterIntro._introStepBuilderListMap[widget.group]!.add(widget);
         if (widget.onWidgetLoad != null) {
           widget.onWidgetLoad!();
         }
@@ -68,9 +76,6 @@ class _IntroStepBuilderState extends State<IntroStepBuilder> {
 
   @override
   Widget build(BuildContext context) {
-    return widget.builder(
-      context,
-      widget._key,
-    );
+    return widget.builder(context, widget._key);
   }
 }

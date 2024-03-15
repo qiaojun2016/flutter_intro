@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_intro/flutter_intro.dart';
 import 'package:intro/advanced_usage.dart';
 import 'package:intro/demo_usage.dart';
+import 'package:intro/group_usage.dart';
 import 'package:intro/simple_usage.dart';
 
 void main() {
@@ -74,8 +75,20 @@ class StartPage extends StatelessWidget {
                   context,
                   MaterialPageRoute(
                     builder: (BuildContext context) => Intro(
-                      maskClosable: true,
                       child: const AdvancedUsage(),
+                    ),
+                  ),
+                );
+              },
+            ),
+            ElevatedButton(
+              child: const Text('Group Usage'),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (BuildContext context) => Intro(
+                      child: const GroupUsage(),
                     ),
                   ),
                 );

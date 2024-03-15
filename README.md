@@ -20,6 +20,10 @@ Custom rendering and dynamic component rendering are also a breeze.
 
 <img src='https://raw.githubusercontent.com/minaxorg/flutter_intro/master/doc/v3/example2.gif' width='300' />
 
+Support the grouping of steps.
+
+<img src='https://raw.githubusercontent.com/minaxorg/flutter_intro/master/doc/v3/example3.gif' width='300' />
+
 ## Usage
 
 To use this package, add `flutter_intro` as a [dependency in your pubspec.yaml file](https://flutter.dev/docs/development/packages-and-plugins/using-packages).

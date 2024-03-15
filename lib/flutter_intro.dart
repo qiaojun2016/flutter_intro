@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 
 part 'delay_rendered_widget.dart';
 part 'flutter_intro_exception.dart';
+part 'global_keys.dart';
 part 'intro_button.dart';
 part 'intro_status.dart';
 part 'intro_step_builder.dart';
@@ -16,6 +17,7 @@ part 'step_widget_params.dart';
 part 'throttling.dart';
 
 class Intro extends InheritedWidget {
+  static String _group = 'default';
   static BuildContext? _context;
   static OverlayEntry? _overlayEntry;
   static bool _removed = false;
@@ -26,8 +28,12 @@ class Intro extends InheritedWidget {
   static Offset _widgetOffset = const Offset(0, 0);
 
   final _th = _Throttling(duration: const Duration(milliseconds: 500));
-  final List<IntroStepBuilder> _introStepBuilderList = [];
-  final List<IntroStepBuilder> _finishedIntroStepBuilderList = [];
+  final Map<String, List<IntroStepBuilder>> _introStepBuilderListMap = {
+    "default": [],
+  };
+  final Map<String, List<IntroStepBuilder>> _finishedIntroStepBuilderListMap = {
+    "default": [],
+  };
   late final Duration _animationDuration;
 
   /// [Widget] [padding] of the selected area, the default is [EdgeInsets.all(8)]
@@ -71,16 +77,24 @@ class Intro extends InheritedWidget {
 
   IntroStatus get status => statusNotifier.value;
 
+  List<IntroStepBuilder> _getIntroStepBuilderList() {
+    return _introStepBuilderListMap[_group] ?? [];
+  }
+
+  List<IntroStepBuilder> _getFinishedIntroStepBuilderList() {
+    return _finishedIntroStepBuilderListMap[_group] ?? [];
+  }
+
   bool get hasNextStep =>
       _currentIntroStepBuilder == null ||
-      _introStepBuilderList.where(
+      _getIntroStepBuilderList().where(
         (element) {
           return element.order > _currentIntroStepBuilder!.order;
         },
       ).isNotEmpty;
 
   bool get hasPrevStep =>
-      _finishedIntroStepBuilderList
+      _getFinishedIntroStepBuilderList()
           .indexWhere((element) => element == _currentIntroStepBuilder) >
       0;
 
@@ -90,15 +104,17 @@ class Intro extends InheritedWidget {
     if (isUpdate) {
       return _currentIntroStepBuilder;
     }
-    int index = _finishedIntroStepBuilderList
+    var finishedIntroStepBuilderList = _getFinishedIntroStepBuilderList();
+    var introStepBuilderList = _getIntroStepBuilderList();
+    int index = finishedIntroStepBuilderList
         .indexWhere((element) => element == _currentIntroStepBuilder);
-    if (index != _finishedIntroStepBuilderList.length - 1) {
-      return _finishedIntroStepBuilderList[index + 1];
+    if (index != finishedIntroStepBuilderList.length - 1) {
+      return finishedIntroStepBuilderList[index + 1];
     } else {
-      _introStepBuilderList.sort((a, b) => a.order - b.order);
+      introStepBuilderList.sort((a, b) => a.order - b.order);
       final introStepBuilder =
-          _introStepBuilderList.cast<IntroStepBuilder?>().firstWhere(
-                (e) => !_finishedIntroStepBuilderList.contains(e),
+          introStepBuilderList.cast<IntroStepBuilder?>().firstWhere(
+                (e) => !finishedIntroStepBuilderList.contains(e),
                 orElse: () => null,
               );
       return introStepBuilder;
@@ -111,10 +127,11 @@ class Intro extends InheritedWidget {
     if (isUpdate) {
       return _currentIntroStepBuilder;
     }
-    int index = _finishedIntroStepBuilderList
+    var finishedIntroStepBuilderList = _getFinishedIntroStepBuilderList();
+    int index = finishedIntroStepBuilderList
         .indexWhere((element) => element == _currentIntroStepBuilder);
     if (index > 0) {
-      return _finishedIntroStepBuilderList[index - 1];
+      return finishedIntroStepBuilderList[index - 1];
     }
     return null;
   }
@@ -171,8 +188,8 @@ class Intro extends InheritedWidget {
       _overlayEntry?.remove();
       _removed = false;
       _setOverlay(null);
-      _introStepBuilderList.clear();
-      _finishedIntroStepBuilderList.clear();
+      _introStepBuilderListMap[_group] = [];
+      _finishedIntroStepBuilderListMap[_group] = [];
     });
   }
 
@@ -187,6 +204,7 @@ class Intro extends InheritedWidget {
         : _getNextIntroStepBuilder(
             isUpdate: isUpdate,
           );
+    print(introStepBuilder);
     _currentIntroStepBuilder = introStepBuilder;
 
     if (introStepBuilder == null) {
@@ -199,7 +217,7 @@ class Intro extends InheritedWidget {
     if (currentContext == null) {
       throw FlutterIntroException(
         'The current context is null, because there is no widget in the tree that matches this global key.'
-        ' Please check whether the key in IntroStepBuilder(order: ${introStepBuilder.order}) has forgotten to bind.'
+        ' Please check whether the key in IntroStepBuilder(group: ${introStepBuilder.group}, order: ${introStepBuilder.order}) has forgotten to bind.'
         ' If you are already bound, it means you have encountered a bug, please let me know.',
       );
     }
@@ -226,8 +244,10 @@ class Intro extends InheritedWidget {
       offset: _widgetOffset,
     );
 
-    if (!_finishedIntroStepBuilderList.contains(introStepBuilder)) {
-      _finishedIntroStepBuilderList.add(introStepBuilder);
+    var finishedIntroStepBuilderList = _getFinishedIntroStepBuilderList();
+    if (!finishedIntroStepBuilderList.contains(introStepBuilder)) {
+      _finishedIntroStepBuilderListMap[_group] ??= [];
+      _finishedIntroStepBuilderListMap[_group]!.add(introStepBuilder);
     }
 
     if (introStepBuilder.overlayBuilder != null) {
@@ -242,6 +262,7 @@ class Intro extends InheritedWidget {
             child: SizedBox(
               child: introStepBuilder.overlayBuilder!(
                 StepWidgetParams(
+                  group: introStepBuilder.group,
                   order: introStepBuilder.order,
                   onNext: hasNextStep ? _render : null,
                   onPrev: hasPrevStep
@@ -379,7 +400,10 @@ class Intro extends InheritedWidget {
     Overlay.of(_context!).insert(_overlayEntry!);
   }
 
-  void start() {
+  void start({
+    String group = 'default',
+  }) {
+    _group = group;
     dispose();
     _render();
   }

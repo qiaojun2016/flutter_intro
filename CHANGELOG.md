@@ -1,3 +1,7 @@
+## [3.2.0]
+
+* Introduce the feature of grouping, where the `IntroStepBuilder` includes a `group` field. Enhance the `Intro.of(context).start` method to accept the `group` parameter for displaying the corresponding group.
+
 ## [3.1.2]
 
 * Fix the issue where images in the readme are not displaying on pub.dev.

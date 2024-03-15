@@ -24,9 +24,13 @@ class StepWidgetParams {
   /// The step order
   final int order;
 
+  /// The step group
+  final String group;
+
   StepWidgetParams({
     this.onPrev,
     this.onNext,
+    required this.group,
     required this.order,
     required this.onFinish,
     required this.screenSize,
@@ -36,6 +40,6 @@ class StepWidgetParams {
 
   @override
   String toString() {
-    return 'StepWidgetParams(order: $order, size: $size, screenSize: $screenSize, offset: $offset)';
+    return 'StepWidgetParams(group: $group, order: $order, size: $size, screenSize: $screenSize, offset: $offset)';
   }
 }
