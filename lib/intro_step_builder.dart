@@ -61,15 +61,11 @@ class _IntroStepBuilderState extends State<IntroStepBuilder> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Intro flutterIntro = Intro.of(context);
-      if (flutterIntro._introStepBuilderListMap[widget.group] == null) {
-        flutterIntro._introStepBuilderListMap[widget.group] = [];
-      }
+      flutterIntro._introStepBuilderListMap[widget.group] ??= [];
       if (!flutterIntro._introStepBuilderListMap[widget.group]!
           .contains(widget)) {
         flutterIntro._introStepBuilderListMap[widget.group]!.add(widget);
-        if (widget.onWidgetLoad != null) {
-          widget.onWidgetLoad!();
-        }
+        widget.onWidgetLoad?.call();
       }
     });
   }
