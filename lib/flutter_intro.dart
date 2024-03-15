@@ -204,7 +204,6 @@ class Intro extends InheritedWidget {
         : _getNextIntroStepBuilder(
             isUpdate: isUpdate,
           );
-    print(introStepBuilder);
     _currentIntroStepBuilder = introStepBuilder;
 
     if (introStepBuilder == null) {
