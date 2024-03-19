@@ -2,13 +2,7 @@
 
 [![pub package](https://img.shields.io/pub/v/flutter_intro.svg)](https://pub.dartlang.org/packages/flutter_intro)
 
-A better way for new feature introduction and step-by-step users guide for your Flutter project.
-
-## Since I no longer work at Tal, the repository has been moved from [https://github.com/tal-tech/flutter_intro](https://github.com/tal-tech/flutter_intro) to here.
-
-## This is `3.x` version, if you find `2.x` documentation, [click here](./README_V2.md).
-
-I completely rewritten the 3.0 version, and the usage is clearer and more concise.
+A better way for new feature introduction and step-by-step user guide for your Flutter project.
 
 <img src='https://raw.githubusercontent.com/minaxorg/flutter_intro/master/doc/v3/example1.gif' width='300' />
 
@@ -74,10 +68,10 @@ IntroStepBuilder(
   overlayBuilder: (params) {
     ///
   }
-  /// You can specify configuration for individual guide here
+  /// You can specify the configuration for the individual guide here
   borderRadius: const BorderRadius.all(Radius.circular(64)),
   builder: (context, key) => NeedGuideWidget(
-    /// You should bind key here.
+    /// You should bind the key here.
     key: key,
   ),
 )
