@@ -4,19 +4,16 @@
 
 A better way for new feature introduction and step-by-step user guide for your Flutter project.
 
-<img src='https://raw.githubusercontent.com/minaxorg/flutter_intro/master/doc/v3/example1.gif' width='300' />
+| <img src='https://raw.githubusercontent.com/minaxorg/flutter_intro/master/doc/v3/example1.gif' width='300' /> | <img src='https://raw.githubusercontent.com/minaxorg/flutter_intro/master/doc/example2.gif' width='300' /> |
+|---|---|
+|<img src='https://raw.githubusercontent.com/minaxorg/flutter_intro/master/doc/v3/example2.gif' width='300' /> | <img src='https://raw.githubusercontent.com/minaxorg/flutter_intro/master/doc/v3/example3.gif' width='300' />|
 
-Automatically adapt when the device screen orientation is switched.
+## Features
 
-<img src='https://raw.githubusercontent.com/minaxorg/flutter_intro/master/doc/example2.gif' width='300' />
-
-Custom rendering and dynamic component rendering are also a breeze.
-
-<img src='https://raw.githubusercontent.com/minaxorg/flutter_intro/master/doc/v3/example2.gif' width='300' />
-
-Support the grouping of steps.
-
-<img src='https://raw.githubusercontent.com/minaxorg/flutter_intro/master/doc/v3/example3.gif' width='300' />
+- The guide widget is capable of adapting to device orientation.
+- Supports custom rendering of the guide widget overlay content.
+- Supports grouping of guide pages, facilitating the display of multiple guide groups on a single page.
+- Supports guiding widgets that are rendered with a delay.
 
 ## Usage
 
