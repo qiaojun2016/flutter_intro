@@ -71,6 +71,20 @@ class _IntroStepBuilderState extends State<IntroStepBuilder> {
   }
 
   @override
+  void didUpdateWidget(covariant IntroStepBuilder oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    Intro flutterIntro = Intro.of(context);
+
+    if (oldWidget.group != widget.group) {
+      flutterIntro._introStepBuilderListMap[widget.group] ??= [];
+      flutterIntro._introStepBuilderListMap[oldWidget.group]!
+          .removeWhere((w) => w.order == oldWidget.order);
+      flutterIntro._introStepBuilderListMap[widget.group]!.add(widget);
+      widget.onWidgetLoad?.call();
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return widget.builder(context, widget._key);
   }
