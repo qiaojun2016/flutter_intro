@@ -1,3 +1,7 @@
+## [3.2.1]
+
+* Fix the [bug](https://github.com/minaxorg/flutter_intro/issues/19) that occurs when the widget group attribute changes.
+
 ## [3.2.0]
 
 * Introduce the feature of grouping, where the `IntroStepBuilder` includes a `group` field. Enhance the `Intro.of(context).start` method to accept the `group` parameter for displaying the corresponding group.
