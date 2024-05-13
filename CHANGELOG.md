@@ -1,3 +1,7 @@
+## [3.2.2]
+
+* Bugfix
+
 ## [3.2.1]
 
 * Fix the [bug](https://github.com/minaxorg/flutter_intro/issues/19) that occurs when the widget group attribute changes.
