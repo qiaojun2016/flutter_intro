@@ -76,11 +76,13 @@ class _IntroStepBuilderState extends State<IntroStepBuilder> {
     Intro flutterIntro = Intro.of(context);
 
     if (oldWidget.group != widget.group) {
-      flutterIntro._introStepBuilderListMap[widget.group] ??= [];
-      flutterIntro._introStepBuilderListMap[oldWidget.group]!
-          .removeWhere((w) => w.order == oldWidget.order);
-      flutterIntro._introStepBuilderListMap[widget.group]!.add(widget);
-      widget.onWidgetLoad?.call();
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        flutterIntro._introStepBuilderListMap[widget.group] ??= [];
+        flutterIntro._introStepBuilderListMap[widget.group]!.add(widget);
+        flutterIntro._introStepBuilderListMap[oldWidget.group]
+            ?.removeWhere((w) => w.order == oldWidget.order);
+        widget.onWidgetLoad?.call();
+      });
     }
   }
 
