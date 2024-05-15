@@ -1,3 +1,8 @@
+## [3.2.3]
+
+* A new `reset` parameter is added to the `start` method to support restarting a round.
+* Code optimization.
+
 ## [3.2.2]
 
 * Bugfix
