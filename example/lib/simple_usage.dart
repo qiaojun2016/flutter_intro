@@ -62,7 +62,9 @@ class SimpleUsage extends StatelessWidget {
                   Icons.play_arrow,
                 ),
                 onPressed: () {
-                  Intro.of(context).start();
+                  Intro.of(context).start(
+                    reset: true,
+                  );
                 },
               ),
             ),

@@ -175,9 +175,6 @@ class _AdvancedUsageState extends State<AdvancedUsage> {
                 ),
                 onPressed: () {
                   Intro.of(context).start();
-
-                  /// Make the component re-render and get the correct isOpen value
-                  setState(() {});
                 },
               ),
             ),

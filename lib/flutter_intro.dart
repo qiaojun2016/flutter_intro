@@ -3,6 +3,7 @@ library flutter_intro;
 import 'dart:async';
 import 'dart:math';
 
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 
 part 'delay_rendered_widget.dart';
@@ -23,17 +24,19 @@ class Intro extends InheritedWidget {
   static bool _removed = false;
   static Size _screenSize = const Size(0, 0);
   static Widget _overlayWidget = const SizedBox.shrink();
-  static IntroStepBuilder? _currentIntroStepBuilder;
+  static IntroStepBuilder? _currentStep;
   static Size _widgetSize = const Size(0, 0);
   static Offset _widgetOffset = const Offset(0, 0);
 
+  final List<String> _finishedGroups = [];
+
   final _th = _Throttling(duration: const Duration(milliseconds: 500));
-  final Map<String, List<IntroStepBuilder>> _introStepBuilderListMap = {
+
+  /// All steps that need to be displayed
+  final Map<String, List<IntroStepBuilder>> _stepsMap = {
     "default": [],
   };
-  final Map<String, List<IntroStepBuilder>> _finishedIntroStepBuilderListMap = {
-    "default": [],
-  };
+
   late final Duration _animationDuration;
 
   /// [Widget] [padding] of the selected area, the default is [EdgeInsets.all(8)]
@@ -70,70 +73,53 @@ class Intro extends InheritedWidget {
     this.buttonTextBuilder,
     required super.child,
   }) {
-    _animationDuration = noAnimation
-        ? const Duration(milliseconds: 0)
-        : const Duration(milliseconds: 300);
+    _animationDuration =
+        noAnimation ? Duration.zero : const Duration(milliseconds: 300);
   }
 
   IntroStatus get status => statusNotifier.value;
 
-  List<IntroStepBuilder> _getIntroStepBuilderList() {
-    return _introStepBuilderListMap[_group] ?? [];
-  }
-
-  List<IntroStepBuilder> _getFinishedIntroStepBuilderList() {
-    return _finishedIntroStepBuilderListMap[_group] ?? [];
+  List<IntroStepBuilder> _getSteps() {
+    return (_stepsMap[_group] ?? [])..sort((a, b) => a.order - b.order);
   }
 
   bool get hasNextStep =>
-      _currentIntroStepBuilder == null ||
-      _getIntroStepBuilderList().where(
-        (element) {
-          return element.order > _currentIntroStepBuilder!.order;
-        },
-      ).isNotEmpty;
+      _currentStep == null ||
+      _getSteps().where((e) => e.order > _currentStep!.order).isNotEmpty;
 
   bool get hasPrevStep =>
-      _getFinishedIntroStepBuilderList()
-          .indexWhere((element) => element == _currentIntroStepBuilder) >
-      0;
+      _currentStep != null &&
+      _getSteps().firstWhereOrNull((e) => e.order < _currentStep!.order) !=
+          null;
 
-  IntroStepBuilder? _getNextIntroStepBuilder({
+  IntroStepBuilder? _getNextStep({
     bool isUpdate = false,
   }) {
     if (isUpdate) {
-      return _currentIntroStepBuilder;
+      return _currentStep;
     }
-    var finishedIntroStepBuilderList = _getFinishedIntroStepBuilderList();
-    var introStepBuilderList = _getIntroStepBuilderList();
-    int index = finishedIntroStepBuilderList
-        .indexWhere((element) => element == _currentIntroStepBuilder);
-    if (index != finishedIntroStepBuilderList.length - 1) {
-      return finishedIntroStepBuilderList[index + 1];
-    } else {
-      introStepBuilderList.sort((a, b) => a.order - b.order);
-      final introStepBuilder =
-          introStepBuilderList.cast<IntroStepBuilder?>().firstWhere(
-                (e) => !finishedIntroStepBuilderList.contains(e),
-                orElse: () => null,
-              );
-      return introStepBuilder;
-    }
+
+    var steps = _getSteps();
+
+    if (_currentStep == null) return steps.firstOrNull;
+
+    return _getSteps().firstWhereOrNull(
+      (e) => e.order > _currentStep!.order,
+    );
   }
 
-  IntroStepBuilder? _getPrevIntroStepBuilder({
+  IntroStepBuilder? _getPrevStep({
     bool isUpdate = false,
   }) {
     if (isUpdate) {
-      return _currentIntroStepBuilder;
+      return _currentStep;
     }
-    var finishedIntroStepBuilderList = _getFinishedIntroStepBuilderList();
-    int index = finishedIntroStepBuilderList
-        .indexWhere((element) => element == _currentIntroStepBuilder);
-    if (index > 0) {
-      return finishedIntroStepBuilderList[index - 1];
-    }
-    return null;
+
+    if (_currentStep == null) return null;
+
+    return _getSteps().lastWhereOrNull(
+      (e) => e.order < _currentStep!.order,
+    );
   }
 
   void _setOverlay(OverlayEntry? overlayEntry) {
@@ -183,13 +169,15 @@ class Intro extends InheritedWidget {
 
     _removed = true;
     _overlayEntry?.markNeedsBuild();
+
     Timer(_animationDuration, () {
       if (_overlayEntry == null) return;
+
+      _finishedGroups.add(_group);
+      _currentStep = null;
       _overlayEntry?.remove();
       _removed = false;
       _setOverlay(null);
-      _introStepBuilderListMap[_group] = [];
-      _finishedIntroStepBuilderListMap[_group] = [];
     });
   }
 
@@ -197,26 +185,22 @@ class Intro extends InheritedWidget {
     bool isUpdate = false,
     bool reverse = false,
   }) {
-    IntroStepBuilder? introStepBuilder = reverse
-        ? _getPrevIntroStepBuilder(
-            isUpdate: isUpdate,
-          )
-        : _getNextIntroStepBuilder(
-            isUpdate: isUpdate,
-          );
-    _currentIntroStepBuilder = introStepBuilder;
+    IntroStepBuilder? step = reverse
+        ? _getPrevStep(isUpdate: isUpdate)
+        : _getNextStep(isUpdate: isUpdate);
+    _currentStep = step;
 
-    if (introStepBuilder == null) {
+    if (step == null) {
       _onFinish();
       return;
     }
 
-    BuildContext? currentContext = introStepBuilder._key.currentContext;
+    BuildContext? currentContext = step._key.currentContext;
 
     if (currentContext == null) {
       throw FlutterIntroException(
         'The current context is null, because there is no widget in the tree that matches this global key.'
-        ' Please check whether the key in IntroStepBuilder(group: ${introStepBuilder.group}, order: ${introStepBuilder.order}) has forgotten to bind.'
+        ' Please check whether the key in IntroStepBuilder(group: ${step.group}, order: ${step.order}) has forgotten to bind.'
         ' If you are already bound, it means you have encountered a bug, please let me know.',
       );
     }
@@ -225,16 +209,14 @@ class Intro extends InheritedWidget {
 
     _screenSize = MediaQuery.of(_context!).size;
     _widgetSize = Size(
-      renderBox.size.width +
-          (introStepBuilder.padding?.horizontal ?? padding.horizontal),
-      renderBox.size.height +
-          (introStepBuilder.padding?.vertical ?? padding.vertical),
+      renderBox.size.width + (step.padding?.horizontal ?? padding.horizontal),
+      renderBox.size.height + (step.padding?.vertical ?? padding.vertical),
     );
     _widgetOffset = Offset(
       renderBox.localToGlobal(Offset.zero).dx -
-          (introStepBuilder.padding?.left ?? padding.left),
+          (step.padding?.left ?? padding.left),
       renderBox.localToGlobal(Offset.zero).dy -
-          (introStepBuilder.padding?.top ?? padding.top),
+          (step.padding?.top ?? padding.top),
     );
 
     OverlayPosition position = _StepWidgetBuilder.getOverlayPosition(
@@ -243,13 +225,7 @@ class Intro extends InheritedWidget {
       offset: _widgetOffset,
     );
 
-    var finishedIntroStepBuilderList = _getFinishedIntroStepBuilderList();
-    if (!finishedIntroStepBuilderList.contains(introStepBuilder)) {
-      _finishedIntroStepBuilderListMap[_group] ??= [];
-      _finishedIntroStepBuilderListMap[_group]!.add(introStepBuilder);
-    }
-
-    if (introStepBuilder.overlayBuilder != null) {
+    if (step.overlayBuilder != null) {
       _overlayWidget = Stack(
         children: [
           Positioned(
@@ -259,10 +235,10 @@ class Intro extends InheritedWidget {
             bottom: position.bottom,
             right: position.right,
             child: SizedBox(
-              child: introStepBuilder.overlayBuilder!(
+              child: step.overlayBuilder!(
                 StepWidgetParams(
-                  group: introStepBuilder.group,
-                  order: introStepBuilder.order,
+                  group: step.group,
+                  order: step.order,
                   onNext: hasNextStep ? _render : null,
                   onPrev: hasPrevStep
                       ? () {
@@ -279,7 +255,7 @@ class Intro extends InheritedWidget {
           ),
         ],
       );
-    } else if (introStepBuilder.text != null) {
+    } else if (step.text != null) {
       _overlayWidget = Stack(
         children: [
           Positioned(
@@ -294,7 +270,7 @@ class Intro extends InheritedWidget {
                 crossAxisAlignment: position.crossAxisAlignment,
                 children: [
                   Text(
-                    introStepBuilder.text!,
+                    step.text!,
                     softWrap: true,
                     style: const TextStyle(
                       fontSize: 14,
@@ -309,7 +285,7 @@ class Intro extends InheritedWidget {
                   IntroButton(
                     text: buttonTextBuilder == null
                         ? 'Next'
-                        : buttonTextBuilder!(introStepBuilder.order),
+                        : buttonTextBuilder!(step.order),
                     onPressed: _render,
                   ),
                 ],
@@ -379,9 +355,8 @@ class Intro extends InheritedWidget {
                         left: _widgetOffset.dx,
                         top: _widgetOffset.dy,
                         borderRadiusGeometry:
-                            _currentIntroStepBuilder?.borderRadius ??
-                                borderRadius,
-                        onTap: _currentIntroStepBuilder?.onHighlightWidgetTap,
+                            _currentStep?.borderRadius ?? borderRadius,
+                        onTap: _currentStep?.onHighlightWidgetTap,
                       ),
                     ],
                   ),
@@ -401,9 +376,18 @@ class Intro extends InheritedWidget {
 
   void start({
     String group = 'default',
+    bool reset = false,
   }) {
+    if (_finishedGroups.contains(group)) {
+      if (!reset) {
+        throw FlutterIntroException(
+          'The group $group has already been completed, if you want to start again, please call the start method with reset = true.',
+        );
+      } else {
+        _finishedGroups.remove(group);
+      }
+    }
     _group = group;
-    dispose();
     _render();
   }
 

@@ -10,6 +10,8 @@ class IntroStepBuilder extends StatefulWidget {
   final String group;
 
   /// Establish a running sequence where lower values take precedence for execution.
+  /// [order] is used internally to mark whether a component participates in guiding,
+  /// so it is not recommended to use variables to modify the value of order to avoid bugs.
   final int order;
 
   /// The method of generating the content of the guide page,
@@ -59,28 +61,30 @@ class _IntroStepBuilderState extends State<IntroStepBuilder> {
   @override
   void initState() {
     super.initState();
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Intro flutterIntro = Intro.of(context);
-      flutterIntro._introStepBuilderListMap[widget.group] ??= [];
-      if (!flutterIntro._introStepBuilderListMap[widget.group]!
-          .contains(widget)) {
-        flutterIntro._introStepBuilderListMap[widget.group]!.add(widget);
-        widget.onWidgetLoad?.call();
-      }
+      flutterIntro._stepsMap[widget.group] ??= [];
+      flutterIntro._stepsMap[widget.group]!
+          .removeWhere((e) => e.order == widget.order);
+      flutterIntro._stepsMap[widget.group]!.add(widget);
+      widget.onWidgetLoad?.call();
     });
   }
 
   @override
   void didUpdateWidget(covariant IntroStepBuilder oldWidget) {
     super.didUpdateWidget(oldWidget);
-    Intro flutterIntro = Intro.of(context);
 
-    if (oldWidget.group != widget.group) {
+    if (oldWidget.group != widget.group || oldWidget.order != widget.order) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        flutterIntro._introStepBuilderListMap[widget.group] ??= [];
-        flutterIntro._introStepBuilderListMap[widget.group]!.add(widget);
-        flutterIntro._introStepBuilderListMap[oldWidget.group]
+        Intro flutterIntro = Intro.of(context);
+        flutterIntro._stepsMap[widget.group] ??= [];
+        flutterIntro._stepsMap[oldWidget.group]
             ?.removeWhere((w) => w.order == oldWidget.order);
+        flutterIntro._stepsMap[widget.group]
+            ?.removeWhere((w) => w.order == widget.order);
+        flutterIntro._stepsMap[widget.group]!.add(widget);
         widget.onWidgetLoad?.call();
       });
     }
