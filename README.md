@@ -4,9 +4,9 @@
 
 A better way for new feature introduction and step-by-step user guide for your Flutter project.
 
-| <img src='https://raw.githubusercontent.com/minaxorg/flutter_intro/master/doc/v3/example1.gif' width='300' /> | <img src='https://raw.githubusercontent.com/minaxorg/flutter_intro/master/doc/example2.gif' width='300' /> |
-|---|---|
-|<img src='https://raw.githubusercontent.com/minaxorg/flutter_intro/master/doc/v3/example2.gif' width='300' /> | <img src='https://raw.githubusercontent.com/minaxorg/flutter_intro/master/doc/v3/example3.gif' width='300' />|
+| <img src='https://raw.githubusercontent.com/minaxorg/flutter_intro/master/doc/v3/example1.gif' width='300' alt='Simple intro demo' />               | <img src='https://raw.githubusercontent.com/minaxorg/flutter_intro/master/doc/example2.gif' width='300' alt='Screen rotate intro demo' /> |
+|-----------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------|
+| <img src='https://raw.githubusercontent.com/minaxorg/flutter_intro/master/doc/v3/example2.gif' width='300' alt='Advanced, customized intro demo' /> | <img src='https://raw.githubusercontent.com/minaxorg/flutter_intro/master/doc/v3/example3.gif' width='300' alt='Multiple groups demo' />  |
 
 ## Features
 
@@ -21,13 +21,14 @@ To use this package, add `flutter_intro` as a [dependency in your pubspec.yaml f
 
 ### Init
 
-Wrap the app root widget with `Intro`, also you can set some global properties on `Intro`.
+Wrap the app root widget with `Intro`. You can also set some global properties on `Intro` as seen
+below.
 
 ```dart
 import 'package:flutter_intro/flutter_intro.dart';
 
 Intro(
-  /// The padding of the highlighted area and the widget
+  /// Padding of the highlighted area and the widget
   padding: const EdgeInsets.all(8),
 
   /// Border radius of the highlighted area
@@ -36,45 +37,50 @@ Intro(
   /// The mask color of step page
   maskColor: const Color.fromRGBO(0, 0, 0, .6);
 
-  /// No animation
+  /// Toggle animation
   noAnimation: false;
 
-  /// Click on whether the mask is allowed to be closed.
+  /// Toggle whether the mask can be closed
   maskClosable: false;
 
-  /// Custom button text
+  /// Build custom button text
   buttonTextBuilder: (order) =>
       order == 3 ? 'Custom Button Text' : 'Next',
 
+  /// High-level widget
   child: const YourApp(),
 )
 ```
 
 ### Add guided widget
 
-This time, the `IntroStepBuilder` class is added to do this, which solves the problem that the previous version could not dynamically add a guide.
+Wrap a widget with `IntroStepBuilder`, placing the original widget inside `builder` and applying the
+`key` so it can be found.
+
+`order` must be defined uniquely per route so that the unique `key` can be generated.
 
 ```dart
+/// See docs for full list of properties, some of which override [Intro] ones
 IntroStepBuilder(
-  /// Guide order, can not be repeated with other
+  /// Required: use unique int for each step to set guide order
   order: 1,
-  /// At least one of text and overlayBuilder
+  
+  /// Use either `text` or `overlayBuilder` to create guide content (see "Advanced Usage" for latter
+  /// example).
+
   /// Use text to quickly add leading text
-  text: 'guide text',
-  /// Using overlayBuilder can be more customized, please refer to advanced usage in example
-  overlayBuilder: (params) {
-    ///
-  }
-  /// You can specify the configuration for the individual guide here
-  borderRadius: const BorderRadius.all(Radius.circular(64)),
-  builder: (context, key) => NeedGuideWidget(
-    /// You should bind the key here.
+  text: 'Use this widget to...',
+  
+  /// Required: provide function that returns a `Widget` with the key
+  builder: (BuildContext context, GlobalKey key) => NeedGuideWidget(
+    /// Bind the key to whatever is returned
     key: key,
   ),
 )
 ```
 
-<img src='https://raw.githubusercontent.com/minaxorg/flutter_intro/master/doc/v3/img1.png' width='500' />
+<img src='https://raw.githubusercontent.com/minaxorg/flutter_intro/master/doc/v3/img1.png'
+width='500' alt='Intro screenshot showing subjects of above parameters' />
 
 ### Run
 
@@ -87,66 +93,67 @@ Intro.of(context).start();
 ## Advanced Usage
 
 ```dart
+/// See `example/lib/advanced_usage.dart` for more details
 IntroStepBuilder(
-  ...,
+  order: 2,
+  
+  /// Create a customized guide widget
   overlayBuilder: (StepWidgetParams params) {
-    return YourOverlay();
+    return YourCustomOverlay();
   },
 )
 ```
 
-<img src='https://raw.githubusercontent.com/minaxorg/flutter_intro/master/doc/img2.png' width='300' />
+`StepWidgetParams` provides many useful parameters to generate the guide overlay, as seen below.
 
-`StepWidgetParams` provides all the parameters needed to generate the guide overlay. 
+<img src='https://raw.githubusercontent.com/minaxorg/flutter_intro/master/doc/img2.png' width='300'
+alt='Intro screenshot showing definitions of spacing and sizing' />
 
-## Troubleshoot
+## Troubleshooting
 
-Q1. What if the highlighted area is not displayed completely?
+### Q1. What if the highlighted area is not displayed completely?
 
-<img src='https://raw.githubusercontent.com/minaxorg/flutter_intro/master/doc/img3.jpg' width='300' />
+<img src='https://raw.githubusercontent.com/minaxorg/flutter_intro/master/doc/img3.jpg' width='300'
+alt='Highlighted icon with padding that goes off-screen' />
 
 A1. That's because Intro provides 8px padding by default.
 
-<img src='https://raw.githubusercontent.com/minaxorg/flutter_intro/master/doc/img4.jpg' width='300' />
+<img src='https://raw.githubusercontent.com/minaxorg/flutter_intro/master/doc/img4.jpg' width='300'
+alt='Highlighted icon with icon selecting to show padding' />
 
-We can change it by setting the value of padding.
+We can change it by setting the value of `padding`.
 
 ```dart
 Intro(
-  ...,
-  /// Set it to zero
+  /// Set padding to zero (or negative) to reduce highlight size
   padding: EdgeInsets.zero,
   child: const YourApp(),
 );
 ```
-<img src='https://raw.githubusercontent.com/minaxorg/flutter_intro/master/doc/img5.jpg' width='300' />
+<img src='https://raw.githubusercontent.com/minaxorg/flutter_intro/master/doc/img5.jpg' width='300'
+alt='Highlighted icon with smaller padding' />
 
-<hr />
+### Q2. Can I set different configurations for each step?
 
-Q2. Can I set different configurations for each step?
+A2. Yes, you can configure every `IntroStepBuilder`.
 
-A2. Yes, you can set in every `IntroStepBuilder`.
 ```dart
 IntroStepBuilder(
-  ...,
-  padding: const EdgeInsets.symmetric(
-    vertical: -5,
-    horizontal: -5,
-  ),
+  order: 3,
+  padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 5),
   borderRadius: const BorderRadius.all(Radius.circular(64)),
   builder: (context, key) => YourWidget(),
 )
 ```
 
-<hr />
+### Q3. Can I make the highlight area smaller?
 
-Q3. Can I make the highlight area smaller?
-
-A3. You can do it by setting padding to a negative number.
+A3. Yes, can do it by setting `padding` to a negative number.
 
 ```dart
 IntroStepBuilder(
-  ...,
+  order: 4,
+  /// Reduce highlight size further
   padding: const EdgeInsets.symmetric(
     vertical: -5,
     horizontal: -5,
@@ -154,11 +161,10 @@ IntroStepBuilder(
   builder: (context, key) => YourWidget(),
 )
 ```
-<img src='https://raw.githubusercontent.com/minaxorg/flutter_intro/master/doc/img6.jpg' width='300' />
+<img src='https://raw.githubusercontent.com/minaxorg/flutter_intro/master/doc/img6.jpg' width='300'
+alt='Highlighted icon with even smaller padding' />
 
-<hr />
-
-Q4. How can I manually destroy the guide page, such as the user pressing the back button?
+### Q4. If the user presses or gestures "back", an exception happens. How do I avoid this?
 
 A4. You can call the dispose method of the intro instance.
 
@@ -166,7 +172,7 @@ A4. You can call the dispose method of the intro instance.
 WillPopScope(
   child: Scaffold(...),
   onWillPop: () async {
-    Intro intro = Intro.of(context);
+    final Intro intro = Intro.of(context);
 
     if (intro.status.isOpen == true) {
       intro.dispose();
@@ -177,9 +183,10 @@ WillPopScope(
 )
 ```
 
-Q5. `WillPopScope` is deprecated, is there any better solution?
+### Q5. `WillPopScope` is deprecated, is there any better solution?
 
-A5. In version 3.1.0, `ValueNotifier<IntroStatus> statusNotifier` is added. You can achieve the same effect through the following sample code.
+A5. As of v3.1.0, you can use `ValueNotifier<IntroStatus> statusNotifier`.
+You can achieve the same effect through the following sample code.
 
 ```dart
 ValueListenableBuilder(
@@ -201,4 +208,3 @@ ValueListenableBuilder(
 ## Example
 
 Please check the example in `example/lib/main.dart`.
-

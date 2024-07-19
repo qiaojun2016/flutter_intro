@@ -17,6 +17,14 @@ part 'step_widget_builder.dart';
 part 'step_widget_params.dart';
 part 'throttling.dart';
 
+/// Class to encompass groups of [IntroStepBuilder] widgets and provide overall
+/// settings for their behavior and display. Use at top level of widget tree for
+/// global access to child steps.
+///
+/// Use [start] to begin the guide. To safely start a guide on initial route
+/// load, call [start] within [IntroStepBuilder.onWidgetLoad] of the first step.
+/// Consider using [Future.delayed] for ~10ms to ensure that all steps are
+/// ready.
 class Intro extends InheritedWidget {
   static String _group = 'default';
   static BuildContext? _context;
@@ -28,70 +36,92 @@ class Intro extends InheritedWidget {
   static Size _widgetSize = const Size(0, 0);
   static Offset _widgetOffset = const Offset(0, 0);
 
+  static const EdgeInsets defaultPadding = EdgeInsets.all(8);
+  static const BorderRadius defaultBorderRadius =
+      BorderRadius.all(Radius.circular(4));
+  static const Color defaultMaskColor = Color.fromRGBO(0, 0, 0, .6);
+  static const bool defaultAnimate = false;
+  static const Duration defaultAnimationDuration = Duration(milliseconds: 300);
+  static const bool defaultMaskClosable = false;
+
   final List<String> _finishedGroups = [];
 
-  final _th = _Throttling(duration: const Duration(milliseconds: 500));
+  final _Throttling _th =
+      _Throttling(duration: const Duration(milliseconds: 500));
 
-  /// All steps that need to be displayed
+  /// [Map] of all steps that need to be displayed. This is generated with
+  /// first-frame callbacks on routes (see `intro_step_builder.dart`).
   final Map<String, List<IntroStepBuilder>> _stepsMap = {
     "default": [],
   };
 
+  /// [Duration] of the animation between steps
   late final Duration _animationDuration;
 
-  /// [Widget] [padding] of the selected area, the default is [EdgeInsets.all(8)]
+  /// [Widget] [padding] of the selected area (default [EdgeInsets.all(8)])
   final EdgeInsets padding;
 
-  /// [Widget] [borderRadius] of the selected area, the default is [BorderRadius.all(Radius.circular(4))]
+  /// [Widget] [borderRadius] of the selected area (default
+  /// [BorderRadius.all(Radius.circular(4))])
   final BorderRadiusGeometry borderRadius;
 
-  /// The mask color of step page
+  /// Mask color of step page (default translucent black)
   final Color maskColor;
 
-  /// No animation
+  /// [bool] to not animate the steps (default false)
   final bool noAnimation;
 
-  /// Click on whether the mask is allowed to be closed.
+  /// [bool] for whether the mask can be closed (default false)
   final bool maskClosable;
 
-  final ValueNotifier<IntroStatus> statusNotifier = ValueNotifier(
-    IntroStatus(isOpen: false),
-  );
+  /// [ValueNotifier] of [IntroStatus], which can be used with
+  /// [ValueListenableBuilder] for instant UI updates. See readme for example.
+  /// Default is not open.
+  final ValueNotifier<IntroStatus> statusNotifier =
+      ValueNotifier(IntroStatus(isOpen: false));
 
-  /// [order] order
-  final String Function(
-    int order,
-  )? buttonTextBuilder;
+  /// Nullable [Function], with [int] parameter for step `order`, to build
+  /// custom buttons for steps (default `null`)
+  final String Function(int order)? buttonTextBuilder;
 
+  /// Constructor for [Intro] widget, requiring only [child] but with further
+  /// customization available
   Intro({
     super.key,
-    this.padding = const EdgeInsets.all(8),
-    this.borderRadius = const BorderRadius.all(Radius.circular(4)),
-    this.maskColor = const Color.fromRGBO(0, 0, 0, .6),
-    this.noAnimation = false,
-    this.maskClosable = false,
+    this.padding = defaultPadding,
+    this.borderRadius = defaultBorderRadius,
+    this.maskColor = defaultMaskColor,
+    this.noAnimation = defaultAnimate,
+    this.maskClosable = defaultMaskClosable,
     this.buttonTextBuilder,
     required super.child,
   }) {
-    _animationDuration =
-        noAnimation ? Duration.zero : const Duration(milliseconds: 300);
+    _animationDuration = noAnimation ? Duration.zero : defaultAnimationDuration;
   }
 
+  /// Get [IntroStatus] for whether the intro is open or closed
   IntroStatus get status => statusNotifier.value;
 
-  List<IntroStepBuilder> _getSteps() {
+  /// Return [List] of [IntroStepBuilder] widgets ordered by `order` property
+  /// ascending. Return empty list if nothing for the [_group] is found.
+  List<IntroStepBuilder> get _steps {
     return (_stepsMap[_group] ?? [])..sort((a, b) => a.order - b.order);
   }
 
+  /// Get [bool] for whether the step has one following it, judged by if there
+  /// is a step with a higher `order` value detected.
   bool get hasNextStep =>
       _currentStep == null ||
-      _getSteps().where((e) => e.order > _currentStep!.order).isNotEmpty;
+      _steps.where((e) => e.order > _currentStep!.order).isNotEmpty;
 
+  /// Get [bool] for whether the step has one before it, judged by if there
+  /// is a step with a lower `order` value detected.
   bool get hasPrevStep =>
       _currentStep != null &&
-      _getSteps().firstWhereOrNull((e) => e.order < _currentStep!.order) !=
-          null;
+      _steps.firstWhereOrNull((e) => e.order < _currentStep!.order) != null;
 
+  /// Return nullable [IntroStepBuilder] for the next step in the sequence as
+  /// compared to [_currentStep].
   IntroStepBuilder? _getNextStep({
     bool isUpdate = false,
   }) {
@@ -99,15 +129,16 @@ class Intro extends InheritedWidget {
       return _currentStep;
     }
 
-    var steps = _getSteps();
+    final List<IntroStepBuilder> steps = _steps;
 
     if (_currentStep == null) return steps.firstOrNull;
 
-    return _getSteps().firstWhereOrNull(
-      (e) => e.order > _currentStep!.order,
-    );
+    return steps.firstWhereOrNull(
+        (IntroStepBuilder s) => s.order > _currentStep!.order);
   }
 
+  /// Return nullable [IntroStepBuilder] for the previous step in the sequence
+  /// as compared to [_currentStep].
   IntroStepBuilder? _getPrevStep({
     bool isUpdate = false,
   }) {
@@ -117,16 +148,18 @@ class Intro extends InheritedWidget {
 
     if (_currentStep == null) return null;
 
-    return _getSteps().lastWhereOrNull(
+    return _steps.lastWhereOrNull(
       (e) => e.order < _currentStep!.order,
     );
   }
 
+  /// Store [overlayEntry] and update [statusNotifier].
   void _setOverlay(OverlayEntry? overlayEntry) {
     _overlayEntry = overlayEntry;
     statusNotifier.value = IntroStatus(isOpen: overlayEntry != null);
   }
 
+  /// Return [Widget] using various parameters
   Widget _widgetBuilder({
     double? width,
     double? height,
@@ -164,6 +197,7 @@ class Intro extends InheritedWidget {
     );
   }
 
+  /// Remove the intro overlay after [_animationDuration] has passed.
   void _onFinish() {
     if (_overlayEntry == null) return;
 
@@ -181,6 +215,8 @@ class Intro extends InheritedWidget {
     });
   }
 
+  /// Move to the next or previous step, or finish the guide if there are no
+  /// more steps.
   void _render({
     bool isUpdate = false,
     bool reverse = false,
@@ -199,9 +235,10 @@ class Intro extends InheritedWidget {
 
     if (currentContext == null) {
       throw FlutterIntroException(
-        'The current context is null, because there is no widget in the tree that matches this global key.'
-        ' Please check whether the key in IntroStepBuilder(group: ${step.group}, order: ${step.order}) has forgotten to bind.'
-        ' If you are already bound, it means you have encountered a bug, please let me know.',
+        'The current context is null because there is no widget in the tree '
+        'that matches this global key. Please check whether the key in '
+        'IntroStepBuilder(group: ${step.group}, order: ${step.order}) has been '
+        'applied to a widget. If so, this may be a bug. Let us know!',
       );
     }
 
@@ -303,6 +340,7 @@ class Intro extends InheritedWidget {
     }
   }
 
+  /// Create [OverlayEntry] and apply it.
   void _createOverlay() {
     _setOverlay(OverlayEntry(
       builder: (BuildContext context) {
@@ -374,6 +412,8 @@ class Intro extends InheritedWidget {
     Overlay.of(_context!).insert(_overlayEntry!);
   }
 
+  /// Begin the intro for [group] (default is `default`). If the group has
+  /// already completed, throw a [FlutterIntroException] unless [reset] is true.
   void start({
     String group = 'default',
     bool reset = false,
@@ -381,7 +421,8 @@ class Intro extends InheritedWidget {
     if (_finishedGroups.contains(group)) {
       if (!reset) {
         throw FlutterIntroException(
-          'The group $group has already been completed, if you want to start again, please call the start method with reset = true.',
+          'The group $group has already been completed. If you want to start '
+          'again, please call the start method with reset = true.',
         );
       } else {
         _finishedGroups.remove(group);
@@ -391,12 +432,11 @@ class Intro extends InheritedWidget {
     _render();
   }
 
-  void refresh() {
-    _render(
-      isUpdate: true,
-    );
-  }
+  /// Refresh the overlay.
+  void refresh() => _render(isUpdate: true);
 
+  /// Find [Intro] widget within [context], store it, and return it. Throw
+  /// [FlutterIntroException] if not found.
   static Intro of(BuildContext context) {
     _context = context;
     Intro? intro = context.dependOnInheritedWidgetOfExactType<Intro>();
@@ -408,6 +448,9 @@ class Intro extends InheritedWidget {
     return intro;
   }
 
+  /// Dispose of the overlay by calling [_onFinish]. See readme example for how
+  /// this can be used to safely close an intro if the user uses the OS back
+  /// functionality.
   void dispose() {
     _onFinish();
   }
