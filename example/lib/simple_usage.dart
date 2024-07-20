@@ -45,7 +45,7 @@ class SimpleUsage extends StatelessWidget {
                       text:
                           'If you need more configuration, please refer to Advanced Usage.',
                       builder: (context, key) => Text(
-                        'And you can use `buttonTextBuilder` to set the button text.',
+                        'And you can use `buttonBuilder` to customize the button.',
                         key: key,
                       ),
                     ),

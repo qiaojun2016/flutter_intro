@@ -59,8 +59,18 @@ class StartPage extends StatelessWidget {
                   context,
                   MaterialPageRoute(
                     builder: (BuildContext context) => Intro(
-                      buttonTextBuilder: (order) =>
-                          order == 3 ? 'Custom Button Text' : 'Next',
+                      buttonBuilder: (order) {
+                        return IntroButtonConfig(
+                          text: order == 3 ? 'Custom Button Text' : 'Next',
+                          height: order == 3 ? 48 : null,
+                          fontSize: order == 3 ? 24 : null,
+                          style: order == 3
+                              ? OutlinedButton.styleFrom(
+                                  backgroundColor: Colors.red,
+                                )
+                              : null,
+                        );
+                      },
                       child: const SimpleUsage(),
                     ),
                   ),

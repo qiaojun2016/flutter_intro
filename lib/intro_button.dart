@@ -14,8 +14,8 @@ class IntroButton extends StatelessWidget {
   final double? width;
   final double height;
   final double fontSize;
-  final Color color;
   final VoidCallback? onPressed;
+  final ButtonStyle? style;
 
   /// Constructor for [IntroButton] with required [text] and optional
   /// parameters.
@@ -25,9 +25,20 @@ class IntroButton extends StatelessWidget {
     this.width,
     this.height = defaultHeight,
     this.fontSize = defaultFontSize,
-    this.color = defaultColor,
     this.onPressed,
+    this.style,
   });
+
+  /// Named constructor for creating an [IntroButton] from an [IntroButtonConfig].
+  IntroButton.fromConfig({
+    super.key,
+    required IntroButtonConfig config,
+    this.onPressed,
+  })  : text = config.text,
+        width = config.width,
+        height = config.height ?? defaultHeight,
+        fontSize = config.fontSize ?? defaultFontSize,
+        style = config.style;
 
   @override
   Widget build(BuildContext context) {
@@ -36,11 +47,12 @@ class IntroButton extends StatelessWidget {
       width: width,
       child: OutlinedButton(
         style: OutlinedButton.styleFrom(
-          foregroundColor: color,
+          foregroundColor: defaultColor,
           shape: const StadiumBorder(),
-          side: onPressed == null ? null : BorderSide(color: color),
+          side:
+              onPressed == null ? null : const BorderSide(color: defaultColor),
           padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 8),
-        ),
+        ).merge(style),
         onPressed: onPressed,
         child: Text(text, style: TextStyle(fontSize: fontSize)),
       ),

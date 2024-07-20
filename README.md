@@ -43,9 +43,19 @@ Intro(
   /// Toggle whether the mask can be closed
   maskClosable: false;
 
-  /// Build custom button text
-  buttonTextBuilder: (order) =>
-      order == 3 ? 'Custom Button Text' : 'Next',
+  /// Build custom button
+  buttonBuilder: (order) {
+    return IntroButtonConfig(
+      text: order == 3 ? 'Custom Button Text' : 'Next',
+      height: order == 3 ? 48 : null,
+      fontSize: order == 3 ? 24 : null,
+      style: order == 3
+        ? OutlinedButton.styleFrom(
+            backgroundColor: Colors.red,
+        )
+        : null,
+    );
+  },
 
   /// High-level widget
   child: const YourApp(),

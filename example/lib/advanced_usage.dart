@@ -73,6 +73,13 @@ class _AdvancedUsageState extends State<AdvancedUsage> {
                                     IntroButton(
                                       text: 'Prev',
                                       onPressed: params.onPrev,
+                                      style: OutlinedButton.styleFrom(
+                                        backgroundColor: Colors.red,
+                                        foregroundColor: Colors.white,
+                                        side: const BorderSide(
+                                          color: Colors.red,
+                                        ),
+                                      ),
                                     ),
                                     const SizedBox(width: 4),
                                     IntroButton(

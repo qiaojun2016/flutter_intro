@@ -10,6 +10,7 @@ part 'delay_rendered_widget.dart';
 part 'flutter_intro_exception.dart';
 part 'global_keys.dart';
 part 'intro_button.dart';
+part 'intro_button_config.dart';
 part 'intro_status.dart';
 part 'intro_step_builder.dart';
 part 'overlay_position.dart';
@@ -23,8 +24,6 @@ part 'throttling.dart';
 ///
 /// Use [start] to begin the guide. To safely start a guide on initial route
 /// load, call [start] within [IntroStepBuilder.onWidgetLoad] of the first step.
-/// Consider using [Future.delayed] for ~10ms to ensure that all steps are
-/// ready.
 class Intro extends InheritedWidget {
   static String _group = 'default';
   static BuildContext? _context;
@@ -82,7 +81,15 @@ class Intro extends InheritedWidget {
 
   /// Nullable [Function], with [int] parameter for step `order`, to build
   /// custom buttons for steps (default `null`)
+  @Deprecated(
+    'Use [buttonBuilder] instead'
+    'This feature was deprecated after v3.3.0. Will be removed in v4.0.0',
+  )
   final String Function(int order)? buttonTextBuilder;
+
+  /// Nullable [Function], with [int] parameter for step `order`, to build
+  /// custom buttons for steps (default `null`)
+  final IntroButtonConfig Function(int order)? buttonBuilder;
 
   /// Constructor for [Intro] widget, requiring only [child] but with further
   /// customization available
@@ -93,6 +100,11 @@ class Intro extends InheritedWidget {
     this.maskColor = defaultMaskColor,
     this.noAnimation = defaultAnimate,
     this.maskClosable = defaultMaskClosable,
+    this.buttonBuilder,
+    @Deprecated(
+      'Use [buttonBuilder] instead'
+      'This feature was deprecated after v3.3.0. Will be removed in v4.0.0',
+    )
     this.buttonTextBuilder,
     required super.child,
   }) {
@@ -319,12 +331,17 @@ class Intro extends InheritedWidget {
                   const SizedBox(
                     height: 12,
                   ),
-                  IntroButton(
-                    text: buttonTextBuilder == null
-                        ? 'Next'
-                        : buttonTextBuilder!(step.order),
-                    onPressed: _render,
-                  ),
+                  buttonBuilder != null
+                      ? IntroButton.fromConfig(
+                          config: buttonBuilder!(step.order),
+                          onPressed: _render,
+                        )
+                      : IntroButton(
+                          text: buttonTextBuilder == null
+                              ? 'Next'
+                              : buttonTextBuilder!(step.order),
+                          onPressed: _render,
+                        ),
                 ],
               ),
             ),

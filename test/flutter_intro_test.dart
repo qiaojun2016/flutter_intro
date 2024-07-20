@@ -12,7 +12,7 @@ void main() {
     expect(intro.maskColor, Intro.defaultMaskColor);
     expect(intro.noAnimation, Intro.defaultAnimate);
     expect(intro.maskClosable, Intro.defaultMaskClosable);
-    expect(intro.buttonTextBuilder, isNull);
+    expect(intro.buttonBuilder, isNull);
     expect(intro.child, isA<Container>());
   });
 
@@ -29,7 +29,7 @@ void main() {
       maskColor: testColor,
       noAnimation: testAnimate,
       maskClosable: testMaskClosable,
-      buttonTextBuilder: (int order) => 'Next ($order)',
+      buttonBuilder: (int order) => IntroButtonConfig(text: 'Next ($order)'),
       child: const SizedBox(),
     );
 
@@ -38,8 +38,8 @@ void main() {
     expect(intro.maskColor, testColor);
     expect(intro.noAnimation, testAnimate);
     expect(intro.maskClosable, testMaskClosable);
-    expect(intro.buttonTextBuilder, isNotNull);
-    expect(intro.buttonTextBuilder!(3), 'Next (3)');
+    expect(intro.buttonBuilder, isNotNull);
+    expect(intro.buttonBuilder!(3).text, 'Next (3)');
     expect(intro.child, isA<SizedBox>());
   });
 
@@ -71,7 +71,6 @@ void main() {
     expect(introButton.width, isNull);
     expect(introButton.height, IntroButton.defaultHeight);
     expect(introButton.fontSize, IntroButton.defaultFontSize);
-    expect(introButton.color, IntroButton.defaultColor);
     expect(introButton.onPressed, isNull);
   });
 
@@ -79,14 +78,12 @@ void main() {
     const double testWidth = 37.0;
     const double testHeight = 42.0;
     const double fontTestSize = 19.0;
-    const Color testColor = Color.fromRGBO(0, 0, 255, 0.5);
 
     final IntroButton introButton = IntroButton(
       text: 'test 2',
       width: testWidth,
       height: testHeight,
       fontSize: fontTestSize,
-      color: testColor,
       onPressed: () {},
     );
 
@@ -94,7 +91,6 @@ void main() {
     expect(introButton.width, testWidth);
     expect(introButton.height, testHeight);
     expect(introButton.fontSize, fontTestSize);
-    expect(introButton.color, testColor);
     expect(introButton.onPressed, isNotNull);
   });
 }
