@@ -1,3 +1,7 @@
+## [3.3.1]
+
+* Fix the score loss issue on [pub.dev](https://pub.dev/packages/flutter_intro/score).
+
 ## [3.3.0]
 
 * Deprecated buttonTextBuilder, added buttonBuilder to allow for more customization by returning an IntroButtonConfig.
