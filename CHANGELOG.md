@@ -1,3 +1,7 @@
+## [3.3.0]
+
+* Deprecated buttonTextBuilder, added buttonBuilder to allow for more customization by returning an IntroButtonConfig.
+
 ## [3.2.3]
 
 * A new `reset` parameter is added to the `start` method to support restarting a round.
