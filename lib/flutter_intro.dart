@@ -268,11 +268,17 @@ class Intro extends InheritedWidget {
           (step.padding?.top ?? padding.top),
     );
 
-    OverlayPosition position = _StepWidgetBuilder.getOverlayPosition(
-      screenSize: _screenSize,
-      size: _widgetSize,
-      offset: _widgetOffset,
-    );
+    OverlayPosition position = step.getOverlayPosition != null
+        ? step.getOverlayPosition!(
+            screenSize: _screenSize,
+            size: _widgetSize,
+            offset: _widgetOffset,
+          )
+        : _StepWidgetBuilder.getOverlayPosition(
+            screenSize: _screenSize,
+            size: _widgetSize,
+            offset: _widgetOffset,
+          );
 
     if (step.overlayBuilder != null) {
       _overlayWidget = Stack(

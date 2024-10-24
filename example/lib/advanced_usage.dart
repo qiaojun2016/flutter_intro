@@ -38,6 +38,17 @@ class _AdvancedUsageState extends State<AdvancedUsage> {
                     IntroStepBuilder(
                       /// 2nd guide
                       order: 2,
+                      getOverlayPosition: ({
+                        required Offset offset,
+                        required Size screenSize,
+                        required Size size,
+                      }) {
+                        return OverlayPosition(
+                          top: size.height + offset.dy,
+                          width: screenSize.width,
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                        );
+                      },
                       overlayBuilder: (params) {
                         return Container(
                           color: Colors.teal,
@@ -46,6 +57,8 @@ class _AdvancedUsageState extends State<AdvancedUsage> {
                             children: [
                               params.onNext == null
                                   ? const Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
                                         Text(
                                           'Of course, you can also render what you want through overlayBuilder.',

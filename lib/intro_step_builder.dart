@@ -27,6 +27,16 @@ class IntroStepBuilder extends StatefulWidget {
   /// must be set.
   final Widget Function(StepWidgetParams params)? overlayBuilder;
 
+  /// [size] means the size of the highlighted area
+  /// [screenSize] means the size of the screen
+  /// [offset] means the offset of the highlighted area
+  /// returns [OverlayPosition] that defines the position of the overlay
+  final OverlayPosition Function({
+    required Size size,
+    required Size screenSize,
+    required Offset offset,
+  })? getOverlayPosition;
+
   /// Optional nullable [VoidCallback] for when highlighted widget is tapped
   final VoidCallback? onHighlightWidgetTap;
 
@@ -54,6 +64,7 @@ class IntroStepBuilder extends StatefulWidget {
     required this.builder,
     this.text,
     this.overlayBuilder,
+    this.getOverlayPosition,
     this.borderRadius,
     this.onHighlightWidgetTap,
     this.padding,

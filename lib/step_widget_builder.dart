@@ -1,21 +1,6 @@
 part of 'flutter_intro.dart';
 
 /// The [WidgetBuilder] class that comes with Flutter Intro
-///
-/// You can use the defaultTheme provided by Flutter Intro
-///
-/// {@tool snippet}
-/// ```dart
-/// final Intro intro = Intro(
-///   stepCount: 2,
-///   widgetBuilder: StepWidgetBuilder.useDefaultTheme([
-///     'say something',
-///     'say other something',
-///   ]),
-/// );
-/// ```
-/// {@end-tool}
-///
 class _StepWidgetBuilder {
   static OverlayPosition getOverlayPosition({
     required Size size,
@@ -52,7 +37,9 @@ class _StepWidgetBuilder {
 
     /// The distance on the right side is very large, it is more beautiful on
     /// the right side
-    if (rightArea > 0.8 * topArea && rightArea > 0.8 * bottomArea && rightArea > leftArea) {
+    if (rightArea > 0.8 * topArea &&
+        rightArea > 0.8 * bottomArea &&
+        rightArea > leftArea) {
       position.left = offset.dx + width + 16;
       position.top = offset.dy - 4;
       position.bottom = null;
@@ -61,7 +48,9 @@ class _StepWidgetBuilder {
     }
 
     /// The distance on the left is large, it is more beautiful on the left side
-    if (leftArea > 0.8 * topArea && leftArea > 0.8 * bottomArea && leftArea > rightArea) {
+    if (leftArea > 0.8 * topArea &&
+        leftArea > 0.8 * bottomArea &&
+        leftArea > rightArea) {
       position.right = rightArea + width + 16;
       position.top = offset.dy - 4;
       position.bottom = null;
