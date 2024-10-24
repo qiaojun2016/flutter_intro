@@ -1,3 +1,8 @@
+## [3.4.0]
+
+* Optimised overlay render logic [pr](https://github.com/minaxorg/flutter_intro/pull/30)
+* Add `getOverlayPosition`, closed [#27](https://github.com/minaxorg/flutter_intro/issues/27)
+
 ## [3.3.1]
 
 * Fix the score loss issue on [pub.dev](https://pub.dev/packages/flutter_intro/score).
