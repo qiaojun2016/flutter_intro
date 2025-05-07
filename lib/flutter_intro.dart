@@ -7,15 +7,25 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 
 part 'delay_rendered_widget.dart';
+
 part 'flutter_intro_exception.dart';
+
 part 'global_keys.dart';
+
 part 'intro_button.dart';
+
 part 'intro_button_config.dart';
+
 part 'intro_status.dart';
+
 part 'intro_step_builder.dart';
+
 part 'overlay_position.dart';
+
 part 'step_widget_builder.dart';
+
 part 'step_widget_params.dart';
+
 part 'throttling.dart';
 
 /// Class to encompass groups of [IntroStepBuilder] widgets and provide overall
@@ -232,7 +242,7 @@ class Intro extends InheritedWidget {
   void _render({
     bool isUpdate = false,
     bool reverse = false,
-  }) {
+  }) async {
     IntroStepBuilder? step = reverse
         ? _getPrevStep(isUpdate: isUpdate)
         : _getNextStep(isUpdate: isUpdate);
@@ -243,124 +253,131 @@ class Intro extends InheritedWidget {
       return;
     }
 
-    BuildContext? currentContext = step._key.currentContext;
-
-    if (currentContext == null) {
-      throw FlutterIntroException(
-        'The current context is null because there is no widget in the tree '
-        'that matches this global key. Please check whether the key in '
-        'IntroStepBuilder(group: ${step.group}, order: ${step.order}) has been '
-        'applied to a widget. If so, this may be a bug. Let us know!',
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      BuildContext? currentContext = step._key.currentContext;
+      if (currentContext == null) {
+        throw FlutterIntroException(
+          'The current context is null because there is no widget in the tree '
+          'that matches this global key. Please check whether the key in '
+          'IntroStepBuilder(group: ${step.group}, order: ${step.order}) has been '
+          'applied to a widget. If so, this may be a bug. Let us know!',
+        );
+      }
+      await Scrollable.ensureVisible(
+        currentContext,
+        duration: Duration(milliseconds: 20),
+        alignment: .5,
       );
-    }
+      if (!currentContext.mounted) return;
 
-    RenderBox renderBox = currentContext.findRenderObject() as RenderBox;
+      RenderBox renderBox = currentContext.findRenderObject() as RenderBox;
 
-    _screenSize = MediaQuery.of(_context!).size;
-    _widgetSize = Size(
-      renderBox.size.width + (step.padding?.horizontal ?? padding.horizontal),
-      renderBox.size.height + (step.padding?.vertical ?? padding.vertical),
-    );
-    _widgetOffset = Offset(
-      renderBox.localToGlobal(Offset.zero).dx -
-          (step.padding?.left ?? padding.left),
-      renderBox.localToGlobal(Offset.zero).dy -
-          (step.padding?.top ?? padding.top),
-    );
+      _screenSize = MediaQuery.of(_context!).size;
+      _widgetSize = Size(
+        renderBox.size.width + (step.padding?.horizontal ?? padding.horizontal),
+        renderBox.size.height + (step.padding?.vertical ?? padding.vertical),
+      );
+      _widgetOffset = Offset(
+        renderBox.localToGlobal(Offset.zero).dx -
+            (step.padding?.left ?? padding.left),
+        renderBox.localToGlobal(Offset.zero).dy -
+            (step.padding?.top ?? padding.top),
+      );
 
-    OverlayPosition position = step.getOverlayPosition != null
-        ? step.getOverlayPosition!(
-            screenSize: _screenSize,
-            size: _widgetSize,
-            offset: _widgetOffset,
-          )
-        : _StepWidgetBuilder.getOverlayPosition(
-            screenSize: _screenSize,
-            size: _widgetSize,
-            offset: _widgetOffset,
-          );
+      OverlayPosition position = step.getOverlayPosition != null
+          ? step.getOverlayPosition!(
+              screenSize: _screenSize,
+              size: _widgetSize,
+              offset: _widgetOffset,
+            )
+          : _StepWidgetBuilder.getOverlayPosition(
+              screenSize: _screenSize,
+              size: _widgetSize,
+              offset: _widgetOffset,
+            );
 
-    if (step.overlayBuilder != null) {
-      _overlayWidget = Stack(
-        children: [
-          Positioned(
-            width: position.width,
-            left: position.left,
-            top: position.top,
-            bottom: position.bottom,
-            right: position.right,
-            child: SizedBox(
-              child: step.overlayBuilder!(
-                StepWidgetParams(
-                  group: step.group,
-                  order: step.order,
-                  onNext: hasNextStep ? _render : null,
-                  onPrev: hasPrevStep
-                      ? () {
-                          _render(reverse: true);
-                        }
-                      : null,
-                  onFinish: _onFinish,
-                  screenSize: _screenSize,
-                  size: _widgetSize,
-                  offset: _widgetOffset,
+      if (step.overlayBuilder != null) {
+        _overlayWidget = Stack(
+          children: [
+            Positioned(
+              width: position.width,
+              left: position.left,
+              top: position.top,
+              bottom: position.bottom,
+              right: position.right,
+              child: SizedBox(
+                child: step.overlayBuilder!(
+                  StepWidgetParams(
+                    group: step.group,
+                    order: step.order,
+                    onNext: hasNextStep ? _render : null,
+                    onPrev: hasPrevStep
+                        ? () {
+                            _render(reverse: true);
+                          }
+                        : null,
+                    onFinish: _onFinish,
+                    screenSize: _screenSize,
+                    size: _widgetSize,
+                    offset: _widgetOffset,
+                  ),
                 ),
               ),
             ),
-          ),
-        ],
-      );
-    } else if (step.text != null) {
-      _overlayWidget = Stack(
-        children: [
-          Positioned(
-            left: position.left,
-            top: position.top,
-            bottom: position.bottom,
-            right: position.right,
-            child: SizedBox(
-              width: position.width,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: position.crossAxisAlignment,
-                children: [
-                  Text(
-                    step.text!,
-                    softWrap: true,
-                    style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                      height: 1.4,
-                      color: Colors.white,
+          ],
+        );
+      } else if (step.text != null) {
+        _overlayWidget = Stack(
+          children: [
+            Positioned(
+              left: position.left,
+              top: position.top,
+              bottom: position.bottom,
+              right: position.right,
+              child: SizedBox(
+                width: position.width,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: position.crossAxisAlignment,
+                  children: [
+                    Text(
+                      step.text!,
+                      softWrap: true,
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        height: 1.4,
+                        color: Colors.white,
+                      ),
                     ),
-                  ),
-                  const SizedBox(
-                    height: 12,
-                  ),
-                  buttonBuilder != null
-                      ? IntroButton.fromConfig(
-                          config: buttonBuilder!(step.order),
-                          onPressed: _render,
-                        )
-                      : IntroButton(
-                          text: buttonTextBuilder == null
-                              ? 'Next'
-                              : buttonTextBuilder!(step.order),
-                          onPressed: _render,
-                        ),
-                ],
+                    const SizedBox(
+                      height: 12,
+                    ),
+                    buttonBuilder != null
+                        ? IntroButton.fromConfig(
+                            config: buttonBuilder!(step.order),
+                            onPressed: _render,
+                          )
+                        : IntroButton(
+                            text: buttonTextBuilder == null
+                                ? 'Next'
+                                : buttonTextBuilder!(step.order),
+                            onPressed: _render,
+                          ),
+                  ],
+                ),
               ),
             ),
-          ),
-        ],
-      );
-    }
+          ],
+        );
+      }
 
-    if (_overlayEntry == null) {
-      _createOverlay();
-    } else {
-      _overlayEntry?.markNeedsBuild();
-    }
+      if (_overlayEntry == null) {
+        _createOverlay();
+      } else {
+        _overlayEntry?.markNeedsBuild();
+      }
+    });
   }
 
   /// Create [OverlayEntry] and apply it.
